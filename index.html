@@ -423,7 +423,7 @@
     };
 
     // Generate daily content based on tournament phase
-    const generateDailyContent = (date) => {
+    const generateDailyContent = (date, reportOverride) => {
       const dayNumber = Math.floor((new Date(date) - new Date('2026-06-11')) / (1000 * 60 * 60 * 24)) + 1;
       
       // ACTUAL VIDEO FILES
@@ -480,13 +480,25 @@
           path: `audio/podcast_day${Math.min(dayNumber, 3)}.mp3`
         },
         infographic: infographic,
-        report: {
+        report: reportOverride || {
           title: reportTopics[dayNumber % reportTopics.length],
           subtitle: "In-depth coverage from our team",
           readTime: `${3 + (dayNumber % 5)} min read`,
           excerpt: `The FIFA World Cup 2026™ continues with action across all three host nations. This historic 48-team tournament—expanded from 32 teams at Qatar 2022—features a new Round of 32 knockout stage and 104 total matches across 16 venues in Canada, Mexico, and the USA...`
         }
       };
+    };
+
+    const parseReportContent = (rawText) => {
+      const cleaned = rawText.trim();
+      if (!cleaned) return null;
+      const segments = cleaned.split(/\r?\n\r?\n+/);
+      const title = segments.shift()?.trim() || 'Latest Feature Report';
+      const subtitle = segments.shift()?.trim() || 'Fresh insights from the World Cup blog';
+      const excerpt = segments.slice(0, 3).join('\n\n').trim() || subtitle;
+      const wordCount = cleaned.split(/\s+/).length;
+      const readTime = `${Math.max(1, Math.ceil(wordCount / 200))} min read`;
+      return { title, subtitle, excerpt, readTime };
     };
 
     // Generate full schedule
@@ -864,16 +876,16 @@
     );
 
     const InfographicCard = ({ infographic }) => (
-      <div className="bg-white rounded-xl border border-neutral-200 p-5 hover:shadow-md transition-shadow h-full">
+      <div className="bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg transition-shadow h-full">
         <div className="flex items-center space-x-2 mb-4">
           <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600">
             <ChartIcon />
           </div>
           <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Infographic</span>
         </div>
-        <h3 className="font-semibold text-neutral-900 mb-1">{infographic.title}</h3>
-        <p className="text-sm text-neutral-500 mb-4">{infographic.subtitle}</p>
-        <a href={infographic.path || '#'} target="_blank" className="block aspect-[4/3] bg-neutral-100 rounded-lg overflow-hidden hover:opacity-90 transition-opacity">
+        <h3 className="text-lg font-semibold text-neutral-900 mb-2">{infographic.title}</h3>
+        <p className="text-sm text-neutral-500 mb-5">{infographic.subtitle}</p>
+        <a href={infographic.path || '#'} target="_blank" className="block h-64 bg-neutral-100 rounded-xl overflow-hidden hover:opacity-95 transition-opacity">
           <img 
             src={infographic.path || 'https://placehold.co/400x300/f5f5f5/737373?text=Infographic'} 
             alt={infographic.title}
@@ -881,33 +893,45 @@
             onError={(e) => { e.target.src = 'https://placehold.co/400x300/f5f5f5/737373?text=Infographic'; }}
           />
         </a>
-        <span className="inline-block text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded mt-3">{infographic.category}</span>
+        <span className="inline-block text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded mt-4">{infographic.category}</span>
       </div>
     );
 
-    const ReportCard = ({ report }) => (
-      <div className="bg-white rounded-xl border border-neutral-200 p-5 hover:shadow-md transition-shadow h-full flex flex-col">
-        <div className="flex items-center space-x-2 mb-4">
-          <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600">
-            <DocumentIcon />
+    const ReportCard = ({ report, status }) => {
+      const isLoading = status?.loading;
+      const hasError = Boolean(status?.error);
+      return (
+        <div className="bg-white rounded-xl border border-neutral-200 p-6 hover:shadow-lg transition-shadow h-full flex flex-col">
+          <div className="flex items-center space-x-2 mb-4">
+            <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600">
+              <DocumentIcon />
+            </div>
+            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Report</span>
           </div>
-          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Report</span>
+          <h3 className="font-semibold text-neutral-900 mb-1">{report.title}</h3>
+          {hasError ? (
+            <p className="text-sm text-red-500 flex-1">{status.error}</p>
+          ) : isLoading ? (
+            <p className="text-sm text-neutral-400 flex-1">Loading the latest blog report...</p>
+          ) : (
+            <>
+              <p className="text-sm text-neutral-500 mb-4">{report.subtitle}</p>
+              <p className="text-sm text-neutral-600 leading-relaxed whitespace-pre-line flex-1">{report.excerpt}</p>
+            </>
+          )}
+          <div className="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100">
+            <span className="text-xs text-neutral-400">{isLoading ? 'Fetching...' : report.readTime}</span>
+            <button className="text-sm font-medium text-neutral-900 hover:text-neutral-600 flex items-center space-x-1">
+              <span>Read More</span><ArrowRightIcon />
+            </button>
+          </div>
         </div>
-        <h3 className="font-semibold text-neutral-900 mb-1">{report.title}</h3>
-        <p className="text-sm text-neutral-500 mb-4">{report.subtitle}</p>
-        <p className="text-sm text-neutral-600 leading-relaxed flex-1">{report.excerpt}</p>
-        <div className="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100">
-          <span className="text-xs text-neutral-400">{report.readTime}</span>
-          <button className="text-sm font-medium text-neutral-900 hover:text-neutral-600 flex items-center space-x-1">
-            <span>Read More</span><ArrowRightIcon />
-          </button>
-        </div>
-      </div>
-    );
+      );
+    };
 
     // Media Feed
-    const MediaFeed = ({ currentDate }) => {
-      const content = generateDailyContent(currentDate);
+    const MediaFeed = ({ currentDate, reportContent, reportStatus }) => {
+      const content = generateDailyContent(currentDate, reportContent);
       return (
         <section className="mb-8">
           {/* Videos Section */}
@@ -926,10 +950,16 @@
             <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Daily Content</span>
             <div className="flex-1 h-px bg-neutral-200"></div>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <AudioCard audio={content.audio} />
-            <InfographicCard infographic={content.infographic} />
-            <ReportCard report={content.report} />
+          <div className="grid grid-cols-1 lg:grid-cols-6 gap-4">
+            <div className="lg:col-span-2">
+              <AudioCard audio={content.audio} />
+            </div>
+            <div className="lg:col-span-4">
+              <InfographicCard infographic={content.infographic} />
+            </div>
+            <div className="lg:col-span-6">
+              <ReportCard report={content.report || { title: 'Latest Feature Report' }} status={reportStatus} />
+            </div>
           </div>
         </section>
       );
@@ -1056,6 +1086,43 @@
       });
       
       const [viewMode, setViewMode] = useState('day');
+      const [reportContent, setReportContent] = useState(null);
+      const [reportError, setReportError] = useState(null);
+
+      useEffect(() => {
+        let isActive = true;
+        const loadReport = async () => {
+          try {
+            const response = await fetch('blog/blog_01.txt');
+            if (!response.ok) {
+              throw new Error('Failed to load report');
+            }
+            const rawText = await response.text();
+            if (!isActive) return;
+            const parsed = parseReportContent(rawText);
+            if (parsed) {
+              setReportContent(parsed);
+              setReportError(null);
+            } else {
+              setReportError('Report file is empty');
+            }
+          } catch (error) {
+            if (isActive) {
+              setReportError('Unable to load report content');
+            }
+          }
+        };
+        loadReport();
+        return () => {
+          isActive = false;
+        };
+      }, []);
+
+      const reportStatus = {
+        loading: !reportContent && !reportError,
+        error: reportError
+      };
+
       const todayMatches = useMemo(() => getMatchesByDate(currentDate), [currentDate]);
 
       return (
@@ -1075,7 +1142,11 @@
                     <p className="text-neutral-500">No matches scheduled for this day</p>
                   </div>
                 )}
-                <MediaFeed currentDate={currentDate} />
+                <MediaFeed 
+                  currentDate={currentDate} 
+                  reportContent={reportContent} 
+                  reportStatus={reportStatus}
+                />
               </>
             )}
             
