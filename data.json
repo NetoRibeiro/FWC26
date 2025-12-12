@@ -1,0 +1,153 @@
+{
+  "tournament": {
+    "name": "FIFA World Cup 2026™",
+    "startDate": "2026-06-11",
+    "endDate": "2026-07-19",
+    "hosts": ["USA", "Mexico", "Canada"],
+    "totalTeams": 48,
+    "totalGroups": 12,
+    "totalMatches": 104
+  },
+  "media": {
+    "videos": [
+      {
+        "id": "video1",
+        "title": "A Copa do Mundo: As Regras Mudaram",
+        "description": "Understanding the new rules for FIFA World Cup 2026",
+        "path": "video/Video1_A_Copa_do_Mundo__As_Regras_Mudaram.mp4",
+        "duration": "12:45",
+        "category": "Rules & Format"
+      },
+      {
+        "id": "video2",
+        "title": "COPA 2026: OS TRÊS MUNDOS",
+        "description": "Exploring the three host nations of the 2026 World Cup",
+        "path": "video/Video2_COPA_2026__OS_TRES_MUNDOS.mp4",
+        "duration": "15:30",
+        "category": "Host Nations"
+      }
+    ],
+    "infographics": [
+      {
+        "id": "infograph1",
+        "title": "World Cup 2026 Timeline",
+        "description": "Complete tournament timeline from group stage to final",
+        "path": "infograph/Infograph_FWC26_LinhaDoTempo.png",
+        "category": "Tournament Schedule"
+      }
+    ],
+    "audio": [
+      {
+        "id": "audio1",
+        "title": "Opening Ceremony Special",
+        "description": "Preview of the FIFA World Cup 2026 opening ceremony",
+        "path": "audio/podcast_day1_opening.mp3",
+        "duration": "25:30",
+        "host": "World Cup Daily Podcast"
+      },
+      {
+        "id": "audio2",
+        "title": "Group Stage Preview",
+        "description": "Expert analysis of all 12 groups",
+        "path": "audio/podcast_day2_groups.mp3",
+        "duration": "32:15",
+        "host": "World Cup Daily Podcast"
+      },
+      {
+        "id": "audio3",
+        "title": "Dark Horses to Watch",
+        "description": "Teams that could surprise at the World Cup",
+        "path": "audio/podcast_day3_darkhorses.mp3",
+        "duration": "28:45",
+        "host": "World Cup Daily Podcast"
+      }
+    ]
+  },
+  "flags": {
+    "Mexico": { "code": "mx", "url": "https://flagcdn.com/w80/mx.png" },
+    "Canada": { "code": "ca", "url": "https://flagcdn.com/w80/ca.png" },
+    "USA": { "code": "us", "url": "https://flagcdn.com/w80/us.png" },
+    "Spain": { "code": "es", "url": "https://flagcdn.com/w80/es.png" },
+    "Argentina": { "code": "ar", "url": "https://flagcdn.com/w80/ar.png" },
+    "France": { "code": "fr", "url": "https://flagcdn.com/w80/fr.png" },
+    "England": { "code": "gb-eng", "url": "https://flagcdn.com/w80/gb-eng.png" },
+    "Brazil": { "code": "br", "url": "https://flagcdn.com/w80/br.png" },
+    "Portugal": { "code": "pt", "url": "https://flagcdn.com/w80/pt.png" },
+    "Netherlands": { "code": "nl", "url": "https://flagcdn.com/w80/nl.png" },
+    "Belgium": { "code": "be", "url": "https://flagcdn.com/w80/be.png" },
+    "Germany": { "code": "de", "url": "https://flagcdn.com/w80/de.png" },
+    "Croatia": { "code": "hr", "url": "https://flagcdn.com/w80/hr.png" },
+    "Morocco": { "code": "ma", "url": "https://flagcdn.com/w80/ma.png" },
+    "Colombia": { "code": "co", "url": "https://flagcdn.com/w80/co.png" },
+    "Uruguay": { "code": "uy", "url": "https://flagcdn.com/w80/uy.png" },
+    "Switzerland": { "code": "ch", "url": "https://flagcdn.com/w80/ch.png" },
+    "Japan": { "code": "jp", "url": "https://flagcdn.com/w80/jp.png" },
+    "Senegal": { "code": "sn", "url": "https://flagcdn.com/w80/sn.png" },
+    "IR Iran": { "code": "ir", "url": "https://flagcdn.com/w80/ir.png" },
+    "Korea Republic": { "code": "kr", "url": "https://flagcdn.com/w80/kr.png" },
+    "Ecuador": { "code": "ec", "url": "https://flagcdn.com/w80/ec.png" },
+    "Austria": { "code": "at", "url": "https://flagcdn.com/w80/at.png" },
+    "Australia": { "code": "au", "url": "https://flagcdn.com/w80/au.png" },
+    "Norway": { "code": "no", "url": "https://flagcdn.com/w80/no.png" },
+    "Panama": { "code": "pa", "url": "https://flagcdn.com/w80/pa.png" },
+    "Egypt": { "code": "eg", "url": "https://flagcdn.com/w80/eg.png" },
+    "Algeria": { "code": "dz", "url": "https://flagcdn.com/w80/dz.png" },
+    "Scotland": { "code": "gb-sct", "url": "https://flagcdn.com/w80/gb-sct.png" },
+    "Paraguay": { "code": "py", "url": "https://flagcdn.com/w80/py.png" },
+    "Tunisia": { "code": "tn", "url": "https://flagcdn.com/w80/tn.png" },
+    "Côte d'Ivoire": { "code": "ci", "url": "https://flagcdn.com/w80/ci.png" },
+    "Uzbekistan": { "code": "uz", "url": "https://flagcdn.com/w80/uz.png" },
+    "Qatar": { "code": "qa", "url": "https://flagcdn.com/w80/qa.png" },
+    "Saudi Arabia": { "code": "sa", "url": "https://flagcdn.com/w80/sa.png" },
+    "South Africa": { "code": "za", "url": "https://flagcdn.com/w80/za.png" },
+    "Jordan": { "code": "jo", "url": "https://flagcdn.com/w80/jo.png" },
+    "Cabo Verde": { "code": "cv", "url": "https://flagcdn.com/w80/cv.png" },
+    "Ghana": { "code": "gh", "url": "https://flagcdn.com/w80/gh.png" },
+    "Curaçao": { "code": "cw", "url": "https://flagcdn.com/w80/cw.png" },
+    "Haiti": { "code": "ht", "url": "https://flagcdn.com/w80/ht.png" },
+    "New Zealand": { "code": "nz", "url": "https://flagcdn.com/w80/nz.png" },
+    "Italy": { "code": "it", "url": "https://flagcdn.com/w80/it.png" },
+    "Wales": { "code": "gb-wls", "url": "https://flagcdn.com/w80/gb-wls.png" },
+    "Ukraine": { "code": "ua", "url": "https://flagcdn.com/w80/ua.png" },
+    "Poland": { "code": "pl", "url": "https://flagcdn.com/w80/pl.png" },
+    "Turkey": { "code": "tr", "url": "https://flagcdn.com/w80/tr.png" },
+    "Denmark": { "code": "dk", "url": "https://flagcdn.com/w80/dk.png" },
+    "Sweden": { "code": "se", "url": "https://flagcdn.com/w80/se.png" },
+    "Romania": { "code": "ro", "url": "https://flagcdn.com/w80/ro.png" },
+    "Slovakia": { "code": "sk", "url": "https://flagcdn.com/w80/sk.png" },
+    "Czechia": { "code": "cz", "url": "https://flagcdn.com/w80/cz.png" },
+    "Northern Ireland": { "code": "gb-nir", "url": "https://flagcdn.com/w80/gb-nir.png" },
+    "Bosnia": { "code": "ba", "url": "https://flagcdn.com/w80/ba.png" },
+    "Albania": { "code": "al", "url": "https://flagcdn.com/w80/al.png" },
+    "Kosovo": { "code": "xk", "url": "https://flagcdn.com/w80/xk.png" },
+    "North Macedonia": { "code": "mk", "url": "https://flagcdn.com/w80/mk.png" },
+    "Ireland": { "code": "ie", "url": "https://flagcdn.com/w80/ie.png" },
+    "Jamaica": { "code": "jm", "url": "https://flagcdn.com/w80/jm.png" },
+    "Congo DR": { "code": "cd", "url": "https://flagcdn.com/w80/cd.png" },
+    "Bolivia": { "code": "bo", "url": "https://flagcdn.com/w80/bo.png" },
+    "Suriname": { "code": "sr", "url": "https://flagcdn.com/w80/sr.png" },
+    "Iraq": { "code": "iq", "url": "https://flagcdn.com/w80/iq.png" },
+    "New Caledonia": { "code": "nc", "url": "https://flagcdn.com/w80/nc.png" },
+    "Serbia": { "code": "rs", "url": "https://flagcdn.com/w80/rs.png" },
+    "Cameroon": { "code": "cm", "url": "https://flagcdn.com/w80/cm.png" },
+    "Costa Rica": { "code": "cr", "url": "https://flagcdn.com/w80/cr.png" }
+  },
+  "stadiums": {
+    "MetLife Stadium": { "city": "East Rutherford, NJ", "country": "USA", "capacity": 82500 },
+    "SoFi Stadium": { "city": "Los Angeles, CA", "country": "USA", "capacity": 70240 },
+    "AT&T Stadium": { "city": "Arlington, TX", "country": "USA", "capacity": 80000 },
+    "Hard Rock Stadium": { "city": "Miami, FL", "country": "USA", "capacity": 65326 },
+    "Lumen Field": { "city": "Seattle, WA", "country": "USA", "capacity": 69000 },
+    "Levi's Stadium": { "city": "Santa Clara, CA", "country": "USA", "capacity": 68500 },
+    "NRG Stadium": { "city": "Houston, TX", "country": "USA", "capacity": 72220 },
+    "Mercedes-Benz Stadium": { "city": "Atlanta, GA", "country": "USA", "capacity": 71000 },
+    "Lincoln Financial Field": { "city": "Philadelphia, PA", "country": "USA", "capacity": 69796 },
+    "Arrowhead Stadium": { "city": "Kansas City, MO", "country": "USA", "capacity": 76416 },
+    "Gillette Stadium": { "city": "Foxborough, MA", "country": "USA", "capacity": 65878 },
+    "Estadio Azteca": { "city": "Mexico City", "country": "Mexico", "capacity": 87523 },
+    "Estadio BBVA": { "city": "Monterrey", "country": "Mexico", "capacity": 53500 },
+    "Estadio Akron": { "city": "Guadalajara", "country": "Mexico", "capacity": 49850 },
+    "BC Place": { "city": "Vancouver", "country": "Canada", "capacity": 54500 },
+    "BMO Field": { "city": "Toronto", "country": "Canada", "capacity": 45736 }
+  }
+}

@@ -1,0 +1,1094 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FIFA World Cup 2026™ Hub</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          colors: {
+            neutral: {
+              50: '#fafafa',
+              100: '#f5f5f5',
+              150: '#ededed',
+              200: '#e5e5e5',
+              300: '#d4d4d4',
+              400: '#a3a3a3',
+              500: '#737373',
+              600: '#525252',
+              700: '#404040',
+              800: '#262626',
+              900: '#171717',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    * { font-family: 'Inter', 'system-ui', sans-serif; }
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+  </style>
+</head>
+<body class="bg-neutral-50 text-neutral-900">
+  <div id="root"></div>
+  
+  <script type="text/babel">
+    const { useState, useEffect, useMemo } = React;
+
+    // ============================================
+    // FIFA WORLD CUP 2026™ OFFICIAL DATA
+    // Source: FIFA Regulations & Draw Procedures
+    // Tournament: June 11 – July 19, 2026
+    // 48 Teams | 12 Groups | 104 Matches
+    // Host Countries: USA, Mexico, Canada
+    // ============================================
+
+    // Complete country flags mapping (all 48 teams + playoffs) - Using flagcdn.com images
+    const FLAGS = {
+      // Pot 1 - Hosts
+      "Mexico": "https://flagcdn.com/w80/mx.png",
+      "Canada": "https://flagcdn.com/w80/ca.png",
+      "USA": "https://flagcdn.com/w80/us.png",
+      // Pot 1 - Top ranked
+      "Spain": "https://flagcdn.com/w80/es.png",
+      "Argentina": "https://flagcdn.com/w80/ar.png",
+      "France": "https://flagcdn.com/w80/fr.png",
+      "England": "https://flagcdn.com/w80/gb-eng.png",
+      "Brazil": "https://flagcdn.com/w80/br.png",
+      "Portugal": "https://flagcdn.com/w80/pt.png",
+      "Netherlands": "https://flagcdn.com/w80/nl.png",
+      "Belgium": "https://flagcdn.com/w80/be.png",
+      "Germany": "https://flagcdn.com/w80/de.png",
+      // Pot 2
+      "Croatia": "https://flagcdn.com/w80/hr.png",
+      "Morocco": "https://flagcdn.com/w80/ma.png",
+      "Colombia": "https://flagcdn.com/w80/co.png",
+      "Uruguay": "https://flagcdn.com/w80/uy.png",
+      "Switzerland": "https://flagcdn.com/w80/ch.png",
+      "Japan": "https://flagcdn.com/w80/jp.png",
+      "Senegal": "https://flagcdn.com/w80/sn.png",
+      "IR Iran": "https://flagcdn.com/w80/ir.png",
+      "Korea Republic": "https://flagcdn.com/w80/kr.png",
+      "Ecuador": "https://flagcdn.com/w80/ec.png",
+      "Austria": "https://flagcdn.com/w80/at.png",
+      "Australia": "https://flagcdn.com/w80/au.png",
+      // Pot 3
+      "Norway": "https://flagcdn.com/w80/no.png",
+      "Panama": "https://flagcdn.com/w80/pa.png",
+      "Egypt": "https://flagcdn.com/w80/eg.png",
+      "Algeria": "https://flagcdn.com/w80/dz.png",
+      "Scotland": "https://flagcdn.com/w80/gb-sct.png",
+      "Paraguay": "https://flagcdn.com/w80/py.png",
+      "Tunisia": "https://flagcdn.com/w80/tn.png",
+      "Côte d'Ivoire": "https://flagcdn.com/w80/ci.png",
+      "Uzbekistan": "https://flagcdn.com/w80/uz.png",
+      "Qatar": "https://flagcdn.com/w80/qa.png",
+      "Saudi Arabia": "https://flagcdn.com/w80/sa.png",
+      "South Africa": "https://flagcdn.com/w80/za.png",
+      // Pot 4 - Direct qualifiers
+      "Jordan": "https://flagcdn.com/w80/jo.png",
+      "Cabo Verde": "https://flagcdn.com/w80/cv.png",
+      "Ghana": "https://flagcdn.com/w80/gh.png",
+      "Curaçao": "https://flagcdn.com/w80/cw.png",
+      "Haiti": "https://flagcdn.com/w80/ht.png",
+      "New Zealand": "https://flagcdn.com/w80/nz.png",
+      // UEFA Playoffs (potential winners)
+      "Italy": "https://flagcdn.com/w80/it.png",
+      "Wales": "https://flagcdn.com/w80/gb-wls.png",
+      "Ukraine": "https://flagcdn.com/w80/ua.png",
+      "Poland": "https://flagcdn.com/w80/pl.png",
+      "Turkey": "https://flagcdn.com/w80/tr.png",
+      "Denmark": "https://flagcdn.com/w80/dk.png",
+      "Sweden": "https://flagcdn.com/w80/se.png",
+      "Romania": "https://flagcdn.com/w80/ro.png",
+      "Slovakia": "https://flagcdn.com/w80/sk.png",
+      "Czechia": "https://flagcdn.com/w80/cz.png",
+      "Northern Ireland": "https://flagcdn.com/w80/gb-nir.png",
+      "Bosnia": "https://flagcdn.com/w80/ba.png",
+      "Albania": "https://flagcdn.com/w80/al.png",
+      "Kosovo": "https://flagcdn.com/w80/xk.png",
+      "North Macedonia": "https://flagcdn.com/w80/mk.png",
+      "Ireland": "https://flagcdn.com/w80/ie.png",
+      // FIFA Play-off teams
+      "Jamaica": "https://flagcdn.com/w80/jm.png",
+      "Congo DR": "https://flagcdn.com/w80/cd.png",
+      "Bolivia": "https://flagcdn.com/w80/bo.png",
+      "Suriname": "https://flagcdn.com/w80/sr.png",
+      "Iraq": "https://flagcdn.com/w80/iq.png",
+      "New Caledonia": "https://flagcdn.com/w80/nc.png",
+      // Additional teams
+      "Serbia": "https://flagcdn.com/w80/rs.png",
+      "Cameroon": "https://flagcdn.com/w80/cm.png",
+      "Costa Rica": "https://flagcdn.com/w80/cr.png",
+      // Placeholders for knockout rounds
+      "UEFA Play-Off A": "https://flagcdn.com/w80/eu.png",
+      "UEFA Play-Off B": "https://flagcdn.com/w80/eu.png",
+      "UEFA Play-Off C": "https://flagcdn.com/w80/eu.png",
+      "UEFA Play-Off D": "https://flagcdn.com/w80/eu.png",
+      "FIFA Play-Off 1": "https://flagcdn.com/w80/un.png",
+      "FIFA Play-Off 2": "https://flagcdn.com/w80/un.png",
+      // TBD placeholders
+      "TBD": "https://flagcdn.com/w80/un.png"
+    };
+
+    // Helper function to get flag URL (returns placeholder for unknown teams)
+    const getFlagUrl = (teamName) => {
+      if (FLAGS[teamName]) return FLAGS[teamName];
+      // For knockout stage placeholder names like "W M73", "2A", etc.
+      return "https://flagcdn.com/w80/un.png";
+    };
+
+    // Official 16 Stadiums across 3 host countries
+    const STADIUMS = {
+      // USA - 11 venues
+      "MetLife Stadium": { city: "East Rutherford, NJ", country: "USA", capacity: 82500 },
+      "SoFi Stadium": { city: "Los Angeles, CA", country: "USA", capacity: 70240 },
+      "AT&T Stadium": { city: "Arlington, TX", country: "USA", capacity: 80000 },
+      "Hard Rock Stadium": { city: "Miami, FL", country: "USA", capacity: 65326 },
+      "Lumen Field": { city: "Seattle, WA", country: "USA", capacity: 69000 },
+      "Levi's Stadium": { city: "Santa Clara, CA", country: "USA", capacity: 68500 },
+      "NRG Stadium": { city: "Houston, TX", country: "USA", capacity: 72220 },
+      "Mercedes-Benz Stadium": { city: "Atlanta, GA", country: "USA", capacity: 71000 },
+      "Lincoln Financial Field": { city: "Philadelphia, PA", country: "USA", capacity: 69796 },
+      "Arrowhead Stadium": { city: "Kansas City, MO", country: "USA", capacity: 76416 },
+      "Gillette Stadium": { city: "Foxborough, MA", country: "USA", capacity: 65878 },
+      // Mexico - 3 venues
+      "Estadio Azteca": { city: "Mexico City", country: "Mexico", capacity: 87523 },
+      "Estadio BBVA": { city: "Monterrey", country: "Mexico", capacity: 53500 },
+      "Estadio Akron": { city: "Guadalajara", country: "Mexico", capacity: 49850 },
+      // Canada - 2 venues
+      "BC Place": { city: "Vancouver", country: "Canada", capacity: 54500 },
+      "BMO Field": { city: "Toronto", country: "Canada", capacity: 45736 }
+    };
+
+    // Official Groups (based on pot structure - positions per FIFA draw procedures)
+    // Mexico = A1, Canada = B1, USA = D1 (as per Feb 4, 2024 schedule)
+    const GROUPS = {
+      A: { position: "A", teams: [
+        { pos: 1, name: "Mexico", pot: 1 },
+        { pos: 2, name: "Croatia", pot: 2 },
+        { pos: 3, name: "Norway", pot: 3 },
+        { pos: 4, name: "Jordan", pot: 4 }
+      ]},
+      B: { position: "B", teams: [
+        { pos: 1, name: "Canada", pot: 1 },
+        { pos: 2, name: "Morocco", pot: 2 },
+        { pos: 3, name: "Panama", pot: 3 },
+        { pos: 4, name: "Cabo Verde", pot: 4 }
+      ]},
+      C: { position: "C", teams: [
+        { pos: 1, name: "Spain", pot: 1 },
+        { pos: 2, name: "Colombia", pot: 2 },
+        { pos: 3, name: "Egypt", pot: 3 },
+        { pos: 4, name: "Ghana", pot: 4 }
+      ]},
+      D: { position: "D", teams: [
+        { pos: 1, name: "USA", pot: 1 },
+        { pos: 2, name: "Uruguay", pot: 2 },
+        { pos: 3, name: "Algeria", pot: 3 },
+        { pos: 4, name: "Curaçao", pot: 4 }
+      ]},
+      E: { position: "E", teams: [
+        { pos: 1, name: "Argentina", pot: 1 },
+        { pos: 2, name: "Switzerland", pot: 2 },
+        { pos: 3, name: "Scotland", pot: 3 },
+        { pos: 4, name: "Haiti", pot: 4 }
+      ]},
+      F: { position: "F", teams: [
+        { pos: 1, name: "France", pot: 1 },
+        { pos: 2, name: "Japan", pot: 2 },
+        { pos: 3, name: "Paraguay", pot: 3 },
+        { pos: 4, name: "New Zealand", pot: 4 }
+      ]},
+      G: { position: "G", teams: [
+        { pos: 1, name: "England", pot: 1 },
+        { pos: 2, name: "Senegal", pot: 2 },
+        { pos: 3, name: "Tunisia", pot: 3 },
+        { pos: 4, name: "UEFA Play-Off A", pot: 4 }
+      ]},
+      H: { position: "H", teams: [
+        { pos: 1, name: "Brazil", pot: 1 },
+        { pos: 2, name: "IR Iran", pot: 2 },
+        { pos: 3, name: "Côte d'Ivoire", pot: 3 },
+        { pos: 4, name: "UEFA Play-Off B", pot: 4 }
+      ]},
+      I: { position: "I", teams: [
+        { pos: 1, name: "Portugal", pot: 1 },
+        { pos: 2, name: "Korea Republic", pot: 2 },
+        { pos: 3, name: "Uzbekistan", pot: 3 },
+        { pos: 4, name: "UEFA Play-Off C", pot: 4 }
+      ]},
+      J: { position: "J", teams: [
+        { pos: 1, name: "Netherlands", pot: 1 },
+        { pos: 2, name: "Ecuador", pot: 2 },
+        { pos: 3, name: "Qatar", pot: 3 },
+        { pos: 4, name: "UEFA Play-Off D", pot: 4 }
+      ]},
+      K: { position: "K", teams: [
+        { pos: 1, name: "Belgium", pot: 1 },
+        { pos: 2, name: "Austria", pot: 2 },
+        { pos: 3, name: "Saudi Arabia", pot: 3 },
+        { pos: 4, name: "FIFA Play-Off 1", pot: 4 }
+      ]},
+      L: { position: "L", teams: [
+        { pos: 1, name: "Germany", pot: 1 },
+        { pos: 2, name: "Australia", pot: 2 },
+        { pos: 3, name: "South Africa", pot: 3 },
+        { pos: 4, name: "FIFA Play-Off 2", pot: 4 }
+      ]}
+    };
+
+    // Generate complete match schedule per FIFA regulations
+    const generateSchedule = () => {
+      const matches = [];
+      let matchId = 1;
+      const stadiumList = Object.keys(STADIUMS);
+      
+      // Group stage match pattern per FIFA regulations Article 12.4:
+      // MD1: 1v2, 3v4 | MD2: 1v3, 4v2 | MD3: 4v1, 2v3
+      const groupMatchPattern = [
+        { day: 1, matches: [[1,2], [3,4]] },
+        { day: 2, matches: [[1,3], [4,2]] },
+        { day: 3, matches: [[4,1], [2,3]] }
+      ];
+
+      // GROUP STAGE: June 11 - June 28, 2026
+      const groupStageStart = new Date('2026-06-11');
+      const groupOrder = ['A','B','C','D','E','F','G','H','I','J','K','L'];
+      
+      groupOrder.forEach((groupLetter, groupIndex) => {
+        const group = GROUPS[groupLetter];
+        groupMatchPattern.forEach((md, mdIndex) => {
+          md.matches.forEach((matchPair, pairIndex) => {
+            const dayOffset = Math.floor(groupIndex / 4) + (mdIndex * 6);
+            const matchDate = new Date(groupStageStart);
+            matchDate.setDate(matchDate.getDate() + dayOffset);
+            
+            const times = ['12:00', '15:00', '18:00', '21:00'];
+            const timeIndex = (groupIndex % 4) * 2 + pairIndex;
+            
+            matches.push({
+              id: matchId++,
+              date: matchDate.toISOString().split('T')[0],
+              time: times[timeIndex % 4],
+              stage: 'Group Stage',
+              group: `Group ${groupLetter}`,
+              matchday: mdIndex + 1,
+              teamA: { name: group.teams[matchPair[0]-1].name, flag: FLAGS[group.teams[matchPair[0]-1].name] },
+              teamB: { name: group.teams[matchPair[1]-1].name, flag: FLAGS[group.teams[matchPair[1]-1].name] },
+              stadium: stadiumList[(matchId - 1) % stadiumList.length],
+              city: STADIUMS[stadiumList[(matchId - 1) % stadiumList.length]].city
+            });
+          });
+        });
+      });
+
+      // ROUND OF 32: June 29 - July 2, 2026 (M73-M88 per FIFA regulations)
+      const r32Start = new Date('2026-06-29');
+      const r32Matchups = [
+        { num: 73, a: '2A', b: '2B' }, { num: 74, a: '1E', b: '3rd ABCDF' },
+        { num: 75, a: '1F', b: '2C' }, { num: 76, a: '1C', b: '2F' },
+        { num: 77, a: '1I', b: '3rd CDFGH' }, { num: 78, a: '2E', b: '2I' },
+        { num: 79, a: '1A', b: '3rd CEFHI' }, { num: 80, a: '1L', b: '3rd EHIJK' },
+        { num: 81, a: '1D', b: '3rd BEFIJ' }, { num: 82, a: '1G', b: '3rd AEHIJ' },
+        { num: 83, a: '2K', b: '2L' }, { num: 84, a: '1H', b: '2J' },
+        { num: 85, a: '1B', b: '3rd EFGIJ' }, { num: 86, a: '1J', b: '2H' },
+        { num: 87, a: '1K', b: '3rd DEIJL' }, { num: 88, a: '2D', b: '2G' }
+      ];
+      
+      r32Matchups.forEach((matchup, index) => {
+        const dayOffset = Math.floor(index / 4);
+        const matchDate = new Date(r32Start);
+        matchDate.setDate(matchDate.getDate() + dayOffset);
+        
+        matches.push({
+          id: matchId++,
+          date: matchDate.toISOString().split('T')[0],
+          time: ['13:00', '16:00', '19:00', '22:00'][index % 4],
+          stage: 'Round of 32',
+          matchNumber: `M${matchup.num}`,
+          teamA: { name: matchup.a, flag: '🏆' },
+          teamB: { name: matchup.b, flag: '🏆' },
+          stadium: stadiumList[index % stadiumList.length],
+          city: STADIUMS[stadiumList[index % stadiumList.length]].city
+        });
+      });
+
+      // ROUND OF 16: July 4-6, 2026 (M89-M96)
+      const r16Start = new Date('2026-07-04');
+      for (let i = 0; i < 8; i++) {
+        const dayOffset = Math.floor(i / 4);
+        const matchDate = new Date(r16Start);
+        matchDate.setDate(matchDate.getDate() + dayOffset);
+        
+        matches.push({
+          id: matchId++,
+          date: matchDate.toISOString().split('T')[0],
+          time: ['16:00', '20:00'][i % 2],
+          stage: 'Round of 16',
+          matchNumber: `M${89 + i}`,
+          teamA: { name: `W M${73 + (i*2)}`, flag: '🏆' },
+          teamB: { name: `W M${74 + (i*2)}`, flag: '🏆' },
+          stadium: stadiumList[i % 8],
+          city: STADIUMS[stadiumList[i % 8]].city
+        });
+      }
+
+      // QUARTER-FINALS: July 9-10, 2026 (M97-M100)
+      const qfStart = new Date('2026-07-09');
+      const qfVenues = ['AT&T Stadium', 'SoFi Stadium', 'MetLife Stadium', 'Hard Rock Stadium'];
+      for (let i = 0; i < 4; i++) {
+        const dayOffset = Math.floor(i / 2);
+        const matchDate = new Date(qfStart);
+        matchDate.setDate(matchDate.getDate() + dayOffset);
+        
+        matches.push({
+          id: matchId++,
+          date: matchDate.toISOString().split('T')[0],
+          time: ['17:00', '21:00'][i % 2],
+          stage: 'Quarter-Final',
+          matchNumber: `M${97 + i}`,
+          teamA: { name: `W M${89 + (i*2)}`, flag: '🏆' },
+          teamB: { name: `W M${90 + (i*2)}`, flag: '🏆' },
+          stadium: qfVenues[i],
+          city: STADIUMS[qfVenues[i]].city
+        });
+      }
+
+      // SEMI-FINALS: July 14-15, 2026 (M101-M102)
+      matches.push({
+        id: matchId++,
+        date: '2026-07-14',
+        time: '20:00',
+        stage: 'Semi-Final',
+        matchNumber: 'M101',
+        teamA: { name: 'Winner QF A', flag: '🏆' },
+        teamB: { name: 'Winner QF B', flag: '🏆' },
+        stadium: 'AT&T Stadium',
+        city: STADIUMS['AT&T Stadium'].city
+      });
+      
+      matches.push({
+        id: matchId++,
+        date: '2026-07-15',
+        time: '20:00',
+        stage: 'Semi-Final',
+        matchNumber: 'M102',
+        teamA: { name: 'Winner QF C', flag: '🏆' },
+        teamB: { name: 'Winner QF D', flag: '🏆' },
+        stadium: 'SoFi Stadium',
+        city: STADIUMS['SoFi Stadium'].city
+      });
+
+      // THIRD PLACE PLAY-OFF: July 18, 2026 (M103)
+      matches.push({
+        id: matchId++,
+        date: '2026-07-18',
+        time: '20:00',
+        stage: 'Third Place',
+        matchNumber: 'M103',
+        teamA: { name: 'Loser SF1', flag: '🥉' },
+        teamB: { name: 'Loser SF2', flag: '🥉' },
+        stadium: 'Hard Rock Stadium',
+        city: STADIUMS['Hard Rock Stadium'].city
+      });
+
+      // FINAL: July 19, 2026 (M104) at MetLife Stadium
+      matches.push({
+        id: matchId++,
+        date: '2026-07-19',
+        time: '20:00',
+        stage: 'Final',
+        matchNumber: 'M104',
+        teamA: { name: 'Winner SF1', flag: '🏆' },
+        teamB: { name: 'Winner SF2', flag: '🏆' },
+        stadium: 'MetLife Stadium',
+        city: STADIUMS['MetLife Stadium'].city,
+        isFinal: true
+      });
+
+      return matches;
+    };
+
+    // Generate daily content based on tournament phase
+    const generateDailyContent = (date) => {
+      const dayNumber = Math.floor((new Date(date) - new Date('2026-06-11')) / (1000 * 60 * 60 * 24)) + 1;
+      
+      // ACTUAL VIDEO FILES
+      const videos = [
+        {
+          id: 'video1',
+          title: 'A Copa do Mundo: As Regras Mudaram',
+          description: 'Understanding the new rules for FIFA World Cup 2026',
+          path: 'video/Video1_A_Copa_do_Mundo__As_Regras_Mudaram.mp4',
+          duration: '12:45',
+          category: 'Rules & Format'
+        },
+        {
+          id: 'video2',
+          title: 'COPA 2026: OS TRÊS MUNDOS',
+          description: 'Exploring the three host nations of the 2026 World Cup',
+          path: 'video/Video2_COPA_2026__OS_TRES_MUNDOS.mp4',
+          duration: '15:30',
+          category: 'Host Nations'
+        }
+      ];
+      
+      // ACTUAL INFOGRAPHIC FILE
+      const infographic = {
+        id: 'infograph1',
+        title: 'World Cup 2026 Timeline',
+        subtitle: 'Complete tournament timeline from group stage to final',
+        path: 'infograph/Infograph_FWC26_LinhaDoTempo.png',
+        category: 'Tournament Schedule'
+      };
+      
+      const audioTopics = [
+        "Opening Ceremony Special", "Group Stage Preview", "Dark Horses to Watch",
+        "Tactical Masterclass", "Star Players Spotlight", "Manager Profiles",
+        "Historic World Cup Moments", "Fan Culture & Atmosphere", "Stadium Tours",
+        "Expert Predictions Panel", "Knockout Stage Preview", "Road to the Final"
+      ];
+      
+      const reportTopics = [
+        "Tournament Preview: What's New in 2026", "Group Stage Day Recap",
+        "Emerging Talent Watch", "Tactical Trends Analysis", "VAR Decisions Review",
+        "Key Matchups Breakdown", "Injury Report Update", "Fan Zone Highlights",
+        "Press Conference Recap", "Behind the Scenes Access"
+      ];
+
+      return {
+        videos: videos,
+        video: videos[dayNumber % videos.length],
+        audio: {
+          title: audioTopics[dayNumber % audioTopics.length],
+          subtitle: `Day ${dayNumber} expert analysis and insights`,
+          duration: `${20 + (dayNumber % 15)}:${String(dayNumber % 60).padStart(2, '0')}`,
+          host: "World Cup Daily Podcast",
+          path: `audio/podcast_day${Math.min(dayNumber, 3)}.mp3`
+        },
+        infographic: infographic,
+        report: {
+          title: reportTopics[dayNumber % reportTopics.length],
+          subtitle: "In-depth coverage from our team",
+          readTime: `${3 + (dayNumber % 5)} min read`,
+          excerpt: `The FIFA World Cup 2026™ continues with action across all three host nations. This historic 48-team tournament—expanded from 32 teams at Qatar 2022—features a new Round of 32 knockout stage and 104 total matches across 16 venues in Canada, Mexico, and the USA...`
+        }
+      };
+    };
+
+    // Generate full schedule
+    const FULL_SCHEDULE = generateSchedule();
+
+    // ============================================
+    // SVG ICONS
+    // ============================================
+    const PlayIcon = () => (
+      <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+        <path d="M8 5v14l11-7z"/>
+      </svg>
+    );
+
+    const HeadphonesIcon = () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19V6l12-3v13M9 19c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zm12-3c0 1.105-1.343 2-3 2s-3-.895-3-2 1.343-2 3-2 3 .895 3 2zM9 10l12-3"/>
+      </svg>
+    );
+
+    const ChartIcon = () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+      </svg>
+    );
+
+    const DocumentIcon = () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+      </svg>
+    );
+
+    const ArrowRightIcon = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7"/>
+      </svg>
+    );
+
+    const ArrowLeftIcon = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7"/>
+      </svg>
+    );
+
+    const CalendarIcon = () => (
+      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+      </svg>
+    );
+
+    const LocationIcon = () => (
+      <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
+        <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+      </svg>
+    );
+
+    // ============================================
+    // UTILITY FUNCTIONS
+    // ============================================
+    const formatDate = (dateStr) => {
+      const date = new Date(dateStr + 'T00:00:00');
+      return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    };
+
+    const getMatchesByDate = (dateStr) => FULL_SCHEDULE.filter(m => m.date === dateStr);
+
+    const getTournamentDates = () => [...new Set(FULL_SCHEDULE.map(m => m.date))].sort();
+
+    // ============================================
+    // COMPONENTS
+    // ============================================
+
+    // Header with Navigation
+    const Header = ({ currentDate, setCurrentDate, viewMode, setViewMode }) => {
+      const tournamentDates = getTournamentDates();
+      const currentIndex = tournamentDates.indexOf(currentDate);
+      
+      const goToPrevDay = () => {
+        if (currentIndex > 0) setCurrentDate(tournamentDates[currentIndex - 1]);
+      };
+      
+      const goToNextDay = () => {
+        if (currentIndex < tournamentDates.length - 1) setCurrentDate(tournamentDates[currentIndex + 1]);
+      };
+
+      return (
+        <header className="bg-white border-b border-neutral-200 sticky top-0 z-50">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="flex justify-between items-center h-16">
+              <div className="flex items-center space-x-2">
+                <span className="text-2xl">⚽</span>
+                <div>
+                  <h1 className="text-lg font-semibold tracking-tight">
+                    FIFA World Cup <span className="text-neutral-500 font-normal">2026™</span>
+                  </h1>
+                  <div className="flex items-center space-x-1 text-xs text-neutral-400">
+                    <img src={FLAGS['USA']} alt="USA" className="w-4 h-3 object-cover rounded-sm" />
+                    <img src={FLAGS['Mexico']} alt="Mexico" className="w-4 h-3 object-cover rounded-sm" />
+                    <img src={FLAGS['Canada']} alt="Canada" className="w-4 h-3 object-cover rounded-sm" />
+                    <span className="ml-1">United 2026</span>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2 bg-neutral-100 rounded-lg px-2 py-1">
+                  <button 
+                    onClick={goToPrevDay} 
+                    disabled={currentIndex === 0}
+                    className="p-1 hover:bg-neutral-200 rounded disabled:opacity-30"
+                  >
+                    <ArrowLeftIcon />
+                  </button>
+                  <span className="text-sm font-medium min-w-[120px] text-center">
+                    {formatDate(currentDate)}
+                  </span>
+                  <button 
+                    onClick={goToNextDay}
+                    disabled={currentIndex === tournamentDates.length - 1}
+                    className="p-1 hover:bg-neutral-200 rounded disabled:opacity-30"
+                  >
+                    <ArrowRightIcon />
+                  </button>
+                </div>
+                
+                <div className="hidden sm:flex items-center space-x-1">
+                  {['day', 'groups', 'bracket'].map(mode => (
+                    <button
+                      key={mode}
+                      onClick={() => setViewMode(mode)}
+                      className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${
+                        viewMode === mode ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:bg-neutral-100'
+                      }`}
+                    >
+                      {mode === 'day' ? 'Day View' : mode}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        </header>
+      );
+    };
+
+    // Match Card - with prominent flag images
+    const MatchCard = ({ match }) => {
+      const isKnockout = !match.group;
+      
+      return (
+        <div className={`bg-white rounded-xl border ${match.isFinal ? 'border-yellow-400 ring-2 ring-yellow-100' : 'border-neutral-200'} p-5 hover:shadow-md transition-shadow`}>
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-sm font-medium text-neutral-900">{match.time}</span>
+            <div className="flex items-center space-x-2">
+              {match.isFinal && <span className="text-yellow-500">🏆</span>}
+              <span className={`text-xs font-medium px-2 py-1 rounded-full ${
+                isKnockout ? 'bg-neutral-800 text-white' : 'bg-neutral-100 text-neutral-500'
+              }`}>
+                {match.group || match.stage}
+              </span>
+            </div>
+          </div>
+          
+          {/* Teams with Large Flag Images */}
+          <div className="flex items-center justify-between mb-4">
+            {/* Team A */}
+            <div className="flex-1 text-center">
+              <div className="flex justify-center mb-2">
+                <img 
+                  src={match.teamA.flag} 
+                  alt={match.teamA.name}
+                  className="w-16 h-12 object-cover rounded shadow-sm border border-neutral-200"
+                  onError={(e) => { e.target.src = 'https://flagcdn.com/w80/un.png'; }}
+                />
+              </div>
+              <span className="font-semibold text-neutral-900 text-sm block truncate px-1">{match.teamA.name}</span>
+            </div>
+            
+            {/* VS Badge */}
+            <div className="px-4">
+              <span className="bg-neutral-100 text-neutral-500 text-xs font-bold px-3 py-1.5 rounded-full">VS</span>
+            </div>
+            
+            {/* Team B */}
+            <div className="flex-1 text-center">
+              <div className="flex justify-center mb-2">
+                <img 
+                  src={match.teamB.flag} 
+                  alt={match.teamB.name}
+                  className="w-16 h-12 object-cover rounded shadow-sm border border-neutral-200"
+                  onError={(e) => { e.target.src = 'https://flagcdn.com/w80/un.png'; }}
+                />
+              </div>
+              <span className="font-semibold text-neutral-900 text-sm block truncate px-1">{match.teamB.name}</span>
+            </div>
+          </div>
+          
+          <div className="flex items-center justify-center space-x-1 text-neutral-400 text-sm pt-2 border-t border-neutral-100">
+            <LocationIcon />
+            <span className="truncate">{match.stadium}, {match.city}</span>
+          </div>
+        </div>
+      );
+    };
+
+    // Date Pills
+    const DatePills = ({ currentDate, setCurrentDate }) => {
+      const tournamentDates = getTournamentDates();
+      const currentIndex = tournamentDates.indexOf(currentDate);
+      const start = Math.max(0, currentIndex - 3);
+      const visibleDates = tournamentDates.slice(start, start + 7);
+      
+      return (
+        <div className="flex space-x-2 overflow-x-auto scrollbar-hide py-2 mb-4">
+          {visibleDates.map(date => {
+            const matches = getMatchesByDate(date);
+            const isActive = date === currentDate;
+            const d = new Date(date + 'T00:00:00');
+            
+            return (
+              <button
+                key={date}
+                onClick={() => setCurrentDate(date)}
+                className={`flex-shrink-0 px-3 py-2 rounded-lg text-center transition-colors ${
+                  isActive ? 'bg-neutral-900 text-white' : 'bg-white border border-neutral-200 hover:border-neutral-300'
+                }`}
+              >
+                <div className="text-xs opacity-70">{d.toLocaleDateString('en-US', { weekday: 'short' })}</div>
+                <div className="font-semibold">{d.getDate()}</div>
+                <div className="text-xs opacity-70">{matches.length} games</div>
+              </button>
+            );
+          })}
+        </div>
+      );
+    };
+
+    // Hero Section
+    const HeroSection = ({ currentDate }) => {
+      const matches = getMatchesByDate(currentDate);
+      const stage = matches[0]?.stage || 'Group Stage';
+      const d = new Date(currentDate + 'T00:00:00');
+      const dayNum = Math.floor((d - new Date('2026-06-11')) / (1000 * 60 * 60 * 24)) + 1;
+      
+      return (
+        <section className="mb-8">
+          <div className="bg-gradient-to-br from-neutral-900 to-neutral-800 rounded-2xl overflow-hidden">
+            <div className="relative aspect-video max-h-[280px] flex items-center justify-center">
+              <img 
+                src="https://placehold.co/1280x720/262626/525252?text=FIFA+World+Cup+2026" 
+                alt="Match Highlights"
+                className="absolute inset-0 w-full h-full object-cover opacity-40"
+              />
+              <button className="relative z-10 w-16 h-16 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-all hover:scale-105 shadow-lg">
+                <PlayIcon />
+              </button>
+              <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent">
+                <div className="flex items-end justify-between">
+                  <div>
+                    <span className="text-neutral-400 text-sm">Day {dayNum} • {stage}</span>
+                    <h2 className="text-white font-bold text-2xl mt-1">{formatDate(currentDate)}</h2>
+                    <p className="text-neutral-300 text-sm mt-1">{matches.length} matches scheduled</p>
+                  </div>
+                  <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm rounded-lg px-4 py-2">
+                    <img src={FLAGS['USA']} alt="USA" className="w-8 h-6 object-cover rounded shadow-sm" />
+                    <img src={FLAGS['Mexico']} alt="Mexico" className="w-8 h-6 object-cover rounded shadow-sm" />
+                    <img src={FLAGS['Canada']} alt="Canada" className="w-8 h-6 object-cover rounded shadow-sm" />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    // Matches Section
+    const MatchesSection = ({ matches }) => {
+      const groupedByStage = matches.reduce((acc, match) => {
+        const key = match.group || match.stage;
+        if (!acc[key]) acc[key] = [];
+        acc[key].push(match);
+        return acc;
+      }, {});
+
+      return (
+        <section className="mb-8">
+          <div className="flex items-center space-x-2 mb-4">
+            <CalendarIcon />
+            <h2 className="text-lg font-semibold">Matches</h2>
+            <span className="text-neutral-500 text-sm">({matches.length} games)</span>
+          </div>
+          {Object.entries(groupedByStage).map(([stage, stageMatches]) => (
+            <div key={stage} className="mb-6">
+              <h3 className="text-sm font-medium text-neutral-500 mb-3">{stage}</h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {stageMatches.map(match => <MatchCard key={match.id} match={match} />)}
+              </div>
+            </div>
+          ))}
+        </section>
+      );
+    };
+
+    // Media Cards
+    const VideoCard = ({ video }) => (
+      <div className="bg-white rounded-xl border border-neutral-200 overflow-hidden hover:shadow-md transition-shadow h-full">
+        <div className="aspect-video bg-neutral-900 relative">
+          <video 
+            className="w-full h-full object-cover"
+            poster={`https://placehold.co/400x225/171717/525252?text=${encodeURIComponent(video.title.substring(0,20))}`}
+          >
+            <source src={video.path} type="video/mp4" />
+          </video>
+          <a 
+            href={video.path} 
+            target="_blank"
+            className="absolute inset-0 flex items-center justify-center bg-black/30 hover:bg-black/20 transition-colors"
+          >
+            <div className="w-14 h-14 bg-white/90 hover:bg-white rounded-full flex items-center justify-center transition-all hover:scale-105 shadow-lg">
+              <PlayIcon />
+            </div>
+          </a>
+          <span className="absolute bottom-2 right-2 bg-black/70 text-white text-xs px-2 py-1 rounded">
+            {video.duration}
+          </span>
+        </div>
+        <div className="p-4">
+          <div className="flex items-center space-x-2 mb-2">
+            <div className="w-6 h-6 bg-red-100 rounded flex items-center justify-center">
+              <svg className="w-4 h-4 text-red-600" fill="currentColor" viewBox="0 0 24 24">
+                <path d="M8 5v14l11-7z"/>
+              </svg>
+            </div>
+            <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Video</span>
+          </div>
+          <h3 className="font-semibold text-neutral-900 mb-1 line-clamp-2">{video.title}</h3>
+          <p className="text-sm text-neutral-500">{video.description}</p>
+          <span className="inline-block text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded mt-3">{video.category}</span>
+        </div>
+      </div>
+    );
+
+    const AudioCard = ({ audio }) => (
+      <div className="bg-white rounded-xl border border-neutral-200 p-5 hover:shadow-md transition-shadow h-full">
+        <div className="flex items-center space-x-2 mb-4">
+          <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600">
+            <HeadphonesIcon />
+          </div>
+          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Audio</span>
+        </div>
+        <h3 className="font-semibold text-neutral-900 mb-1">{audio.title}</h3>
+        <p className="text-sm text-neutral-500 mb-4">{audio.subtitle}</p>
+        <div className="bg-neutral-50 rounded-lg p-3">
+          <div className="flex items-center space-x-3">
+            <a 
+              href={audio.path || '#'} 
+              target="_blank"
+              className="w-10 h-10 bg-neutral-900 rounded-full flex items-center justify-center text-white hover:bg-neutral-800"
+            >
+              <PlayIcon />
+            </a>
+            <div className="flex-1">
+              <div className="h-1 bg-neutral-200 rounded-full"><div className="h-full w-1/4 bg-neutral-400 rounded-full"></div></div>
+              <div className="flex justify-between mt-1">
+                <span className="text-xs text-neutral-400">0:00</span>
+                <span className="text-xs text-neutral-400">{audio.duration}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <p className="text-xs text-neutral-400 mt-3">{audio.host}</p>
+      </div>
+    );
+
+    const InfographicCard = ({ infographic }) => (
+      <div className="bg-white rounded-xl border border-neutral-200 p-5 hover:shadow-md transition-shadow h-full">
+        <div className="flex items-center space-x-2 mb-4">
+          <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600">
+            <ChartIcon />
+          </div>
+          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Infographic</span>
+        </div>
+        <h3 className="font-semibold text-neutral-900 mb-1">{infographic.title}</h3>
+        <p className="text-sm text-neutral-500 mb-4">{infographic.subtitle}</p>
+        <a href={infographic.path || '#'} target="_blank" className="block aspect-[4/3] bg-neutral-100 rounded-lg overflow-hidden hover:opacity-90 transition-opacity">
+          <img 
+            src={infographic.path || 'https://placehold.co/400x300/f5f5f5/737373?text=Infographic'} 
+            alt={infographic.title}
+            className="w-full h-full object-cover"
+            onError={(e) => { e.target.src = 'https://placehold.co/400x300/f5f5f5/737373?text=Infographic'; }}
+          />
+        </a>
+        <span className="inline-block text-xs text-neutral-500 bg-neutral-100 px-2 py-1 rounded mt-3">{infographic.category}</span>
+      </div>
+    );
+
+    const ReportCard = ({ report }) => (
+      <div className="bg-white rounded-xl border border-neutral-200 p-5 hover:shadow-md transition-shadow h-full flex flex-col">
+        <div className="flex items-center space-x-2 mb-4">
+          <div className="w-8 h-8 bg-neutral-100 rounded-lg flex items-center justify-center text-neutral-600">
+            <DocumentIcon />
+          </div>
+          <span className="text-xs font-medium text-neutral-500 uppercase tracking-wider">Report</span>
+        </div>
+        <h3 className="font-semibold text-neutral-900 mb-1">{report.title}</h3>
+        <p className="text-sm text-neutral-500 mb-4">{report.subtitle}</p>
+        <p className="text-sm text-neutral-600 leading-relaxed flex-1">{report.excerpt}</p>
+        <div className="flex items-center justify-between mt-4 pt-4 border-t border-neutral-100">
+          <span className="text-xs text-neutral-400">{report.readTime}</span>
+          <button className="text-sm font-medium text-neutral-900 hover:text-neutral-600 flex items-center space-x-1">
+            <span>Read More</span><ArrowRightIcon />
+          </button>
+        </div>
+      </div>
+    );
+
+    // Media Feed
+    const MediaFeed = ({ currentDate }) => {
+      const content = generateDailyContent(currentDate);
+      return (
+        <section className="mb-8">
+          {/* Videos Section */}
+          <div className="flex items-center space-x-2 mb-4">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Featured Videos</span>
+            <div className="flex-1 h-px bg-neutral-200"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8">
+            {content.videos.map(video => (
+              <VideoCard key={video.id} video={video} />
+            ))}
+          </div>
+          
+          {/* Daily Content */}
+          <div className="flex items-center space-x-2 mb-4">
+            <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Daily Content</span>
+            <div className="flex-1 h-px bg-neutral-200"></div>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <AudioCard audio={content.audio} />
+            <InfographicCard infographic={content.infographic} />
+            <ReportCard report={content.report} />
+          </div>
+        </section>
+      );
+    };
+
+    // Groups View
+    const GroupsView = () => (
+      <section className="mb-8">
+        <h2 className="text-lg font-semibold mb-4">All 12 Groups</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {Object.entries(GROUPS).map(([letter, group]) => (
+            <div key={letter} className="bg-white rounded-xl border border-neutral-200 p-4">
+              <h3 className="font-semibold text-neutral-900 mb-3">Group {letter}</h3>
+              <div className="space-y-2">
+                {group.teams.map((team, idx) => (
+                  <div key={idx} className="flex items-center space-x-3 text-sm">
+                    <img 
+                      src={FLAGS[team.name] || getFlagUrl(team.name)} 
+                      alt={team.name}
+                      className="w-8 h-6 object-cover rounded shadow-sm border border-neutral-200"
+                      onError={(e) => { e.target.src = 'https://flagcdn.com/w80/un.png'; }}
+                    />
+                    <span className="flex-1 truncate font-medium">{team.name}</span>
+                    <span className="text-xs text-neutral-400 bg-neutral-100 px-2 py-0.5 rounded">Pot {team.pot}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+        <div className="mt-6 bg-white rounded-xl border border-neutral-200 p-4">
+          <h4 className="font-semibold text-sm mb-3">Tournament Format (New for 2026)</h4>
+          <p className="text-sm text-neutral-600 leading-relaxed">
+            The FIFA World Cup 2026 features an expanded 48-team format (up from 32 in 2022). Teams are divided into 12 groups of 4. 
+            The top 2 teams from each group plus the 8 best third-placed teams advance to a new <strong>Round of 32</strong> knockout stage, 
+            followed by Round of 16, Quarter-finals, Semi-finals, Third Place, and Final.
+          </p>
+        </div>
+      </section>
+    );
+
+    // Bracket View  
+    const BracketView = () => {
+      const knockoutMatches = FULL_SCHEDULE.filter(m => !m.group);
+      const stages = ['Round of 32', 'Round of 16', 'Quarter-Final', 'Semi-Final', 'Third Place', 'Final'];
+      
+      return (
+        <section className="mb-8">
+          <h2 className="text-lg font-semibold mb-4">Tournament Bracket</h2>
+          <div className="bg-white rounded-xl border border-neutral-200 p-6">
+            <div className="space-y-6">
+              {stages.map(stage => {
+                const stageMatches = knockoutMatches.filter(m => m.stage === stage);
+                if (!stageMatches.length) return null;
+                
+                return (
+                  <div key={stage}>
+                    <h3 className="font-semibold text-sm text-neutral-500 mb-3">{stage} ({stageMatches.length} matches)</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {stageMatches.slice(0, 8).map(match => (
+                        <div key={match.id} className={`p-3 rounded-lg border ${match.isFinal ? 'border-yellow-400 bg-yellow-50' : 'border-neutral-200 bg-neutral-50'}`}>
+                          <div className="text-xs text-neutral-400 mb-1">{formatDate(match.date)} • {match.time}</div>
+                          <div className="text-sm font-medium truncate">{match.teamA.name}</div>
+                          <div className="text-xs text-neutral-400 my-0.5">vs</div>
+                          <div className="text-sm font-medium truncate">{match.teamB.name}</div>
+                          <div className="text-xs text-neutral-400 mt-1 truncate">{match.stadium}</div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="mt-6 pt-6 border-t border-neutral-200">
+              <h4 className="font-semibold text-sm mb-3">Key Dates</h4>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 text-sm">
+                <div><span className="text-neutral-500">Opening:</span> June 11</div>
+                <div><span className="text-neutral-500">R32:</span> June 29 - July 2</div>
+                <div><span className="text-neutral-500">Semi-finals:</span> July 14-15</div>
+                <div><span className="text-neutral-500">Final:</span> July 19</div>
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    };
+
+    // Footer
+    const Footer = () => (
+      <footer className="bg-white border-t border-neutral-200 mt-12">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="flex items-center space-x-2">
+              <span className="text-xl">⚽</span>
+              <span className="text-sm text-neutral-500">FIFA World Cup 2026™ Hub</span>
+            </div>
+            <div className="text-center">
+              <span className="text-sm text-neutral-400">June 11 – July 19, 2026</span>
+              <div className="flex items-center justify-center space-x-2 mt-1">
+                <img src={FLAGS['USA']} alt="USA" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
+                <img src={FLAGS['Mexico']} alt="Mexico" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
+                <img src={FLAGS['Canada']} alt="Canada" className="w-6 h-4 object-cover rounded-sm shadow-sm" />
+              </div>
+            </div>
+            <div className="text-xs text-neutral-400">48 Teams • 12 Groups • 104 Matches</div>
+          </div>
+        </div>
+      </footer>
+    );
+
+    // ============================================
+    // MAIN APP
+    // ============================================
+    const App = () => {
+      const [currentDate, setCurrentDate] = useState(() => {
+        // Auto-detect: use today if within tournament, otherwise opening day
+        const today = new Date();
+        const start = new Date('2026-06-11');
+        const end = new Date('2026-07-19');
+        if (today >= start && today <= end) {
+          return today.toISOString().split('T')[0];
+        }
+        return '2026-06-11';
+      });
+      
+      const [viewMode, setViewMode] = useState('day');
+      const todayMatches = useMemo(() => getMatchesByDate(currentDate), [currentDate]);
+
+      return (
+        <div className="min-h-screen bg-neutral-50">
+          <Header currentDate={currentDate} setCurrentDate={setCurrentDate} viewMode={viewMode} setViewMode={setViewMode} />
+          
+          <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+            <DatePills currentDate={currentDate} setCurrentDate={setCurrentDate} />
+            
+            {viewMode === 'day' && (
+              <>
+                <HeroSection currentDate={currentDate} />
+                {todayMatches.length > 0 ? (
+                  <MatchesSection matches={todayMatches} />
+                ) : (
+                  <div className="bg-white rounded-xl border border-neutral-200 p-8 text-center mb-8">
+                    <p className="text-neutral-500">No matches scheduled for this day</p>
+                  </div>
+                )}
+                <MediaFeed currentDate={currentDate} />
+              </>
+            )}
+            
+            {viewMode === 'groups' && <GroupsView />}
+            {viewMode === 'bracket' && <BracketView />}
+          </main>
+          
+          <Footer />
+        </div>
+      );
+    };
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
