@@ -567,13 +567,46 @@
     const getMatchesByDate = (dateStr) => FULL_SCHEDULE.filter(m => m.date === dateStr);
 
     const getTournamentDates = () => [...new Set(FULL_SCHEDULE.map(m => m.date))].sort();
+    const VIEW_MODES = [
+      { id: 'day', label: 'Day View' },
+      { id: 'groups', label: 'Groups' },
+      { id: 'bracket', label: 'Bracket' },
+      { id: 'chat', label: 'Talk with the IA' }
+    ];
+    const NOTEBOOK_LM_URL = 'https://notebooklm.google.com/notebook/0d6495bd-1f6c-4933-89a5-830e948abe12';
+    const PROMPT_LIBRARY = [
+      {
+        id: 'daily-summary',
+        title: "Daily storylines",
+        description: "Short recap of today's schedule & stakes",
+        template: "Summarize the must-know storylines for the matches scheduled on {date}. Highlight key teams, stakes, and suggested headlines."
+      },
+      {
+        id: 'social-caption',
+        title: "Social caption",
+        description: "Punchy post w/ emojis & hashtags",
+        template: "Create a high-energy social caption (100 characters) promoting the marquee match on {date}, including one emoji and #FWC26."
+      },
+      {
+        id: 'analysis-blurb',
+        title: "Tactical angle",
+        description: "Coach/analyst insight starter",
+        template: "Provide three tactical talking points to discuss before kickoff for today's prime-time matchday ({date})."
+      },
+      {
+        id: 'sponsor-spot',
+        title: "Partner shout",
+        description: "Script line featuring sponsor",
+        template: "Draft a 30-second host script that weaves in the presenting sponsor while previewing the biggest match on {date}."
+      }
+    ];
 
     // ============================================
     // COMPONENTS
     // ============================================
 
     // Header with Navigation
-    const Header = ({ currentDate, setCurrentDate, viewMode, setViewMode }) => {
+    const Header = ({ currentDate, setCurrentDate, viewMode, setViewMode, onOpenAssistant }) => {
       const tournamentDates = getTournamentDates();
       const currentIndex = tournamentDates.indexOf(currentDate);
       
@@ -626,20 +659,34 @@
                 </div>
                 
                 <div className="hidden sm:flex items-center space-x-1">
-                  {['day', 'groups', 'bracket'].map(mode => (
+                  {VIEW_MODES.map(({ id, label }) => (
                     <button
-                      key={mode}
-                      onClick={() => setViewMode(mode)}
-                      className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors capitalize ${
-                        viewMode === mode ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:bg-neutral-100'
+                      key={id}
+                      onClick={() => setViewMode(id)}
+                      className={`px-3 py-1.5 text-sm font-medium rounded-lg transition-colors ${
+                        viewMode === id ? 'bg-neutral-900 text-white' : 'text-neutral-600 hover:bg-neutral-100'
                       }`}
                     >
-                      {mode === 'day' ? 'Day View' : mode}
+                      {label}
                     </button>
                   ))}
                 </div>
+                <button
+                  onClick={onOpenAssistant}
+                  className="hidden sm:inline-flex items-center px-3 py-1.5 text-sm font-semibold rounded-lg border border-neutral-200 hover:border-neutral-300 text-neutral-700"
+                >
+                  Quick Ask AI
+                </button>
               </div>
             </div>
+          </div>
+          <div className="px-4 pb-3 sm:hidden">
+            <button
+              onClick={onOpenAssistant}
+              className="w-full inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-neutral-900 text-white hover:bg-neutral-800"
+            >
+              Quick Ask AI
+            </button>
           </div>
         </header>
       );
@@ -1145,6 +1192,193 @@
       );
     };
 
+    const ChatWithAI = () => (
+      <section className="mb-8">
+        <div className="bg-white rounded-2xl border border-neutral-200 p-6 space-y-6">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+              <h2 className="text-lg font-semibold">Talk with the IA</h2>
+              <p className="text-sm text-neutral-600">
+                NotebookLM hosts the full research notebook for this project. Use it to ask questions, generate scripts, or brainstorm coverage ideas with the built-in AI.
+              </p>
+            </div>
+            <a
+              href={NOTEBOOK_LM_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center justify-center px-4 py-2 text-sm font-semibold rounded-lg bg-neutral-900 text-white hover:bg-neutral-800"
+            >
+              Open NotebookLM chat
+            </a>
+          </div>
+          <div className="bg-neutral-50 border border-dashed border-neutral-200 rounded-xl p-6 text-sm text-neutral-600 space-y-3">
+            <p className="font-semibold text-neutral-800">Why no inline preview?</p>
+            <p>
+              Google blocks NotebookLM from being embedded in other sites, which causes redirect loops like the one you saw. Use the button above to open the experience in a dedicated tab.
+            </p>
+            <ul className="list-disc list-inside space-y-1 text-neutral-600">
+              <li>Sign in with the Google account that has access to the notebook.</li>
+              <li>Pin the tab for quick reference while browsing the hub.</li>
+              <li>Share the NotebookLM link with teammates who need access.</li>
+            </ul>
+          </div>
+          <p className="text-xs text-neutral-400">
+            Need another integration (e.g., embedded chat widget or custom prompt workflow)? Let us know and we can wire it up here.
+          </p>
+        </div>
+      </section>
+    );
+
+    const AssistantDrawer = ({ isOpen, onClose, currentDate }) => {
+      const [promptInput, setPromptInput] = useState('');
+      const [conversation, setConversation] = useState([]);
+      const [isThinking, setIsThinking] = useState(false);
+
+      const preparedPrompts = useMemo(
+        () => PROMPT_LIBRARY.map(prompt => ({
+          ...prompt,
+          filled: prompt.template.replace('{date}', formatDate(currentDate))
+        })),
+        [currentDate]
+      );
+
+      const handleTemplateSelect = (text) => {
+        setPromptInput(text);
+      };
+
+      const fakeAssistantReply = (question) => {
+        return [
+          `Here’s a starter draft based on: "${question.slice(0, 80)}${question.length > 80 ? '…' : ''}"`,
+          '',
+          '1. Key takeaway the host can read immediately.',
+          '2. Supporting detail or statistic to add color.',
+          '3. Suggested CTA or next step for producers.'
+        ].join('\n');
+      };
+
+      const handleSend = () => {
+        const trimmed = promptInput.trim();
+        if (!trimmed) return;
+        setConversation(prev => [...prev, { role: 'user', text: trimmed }]);
+        setPromptInput('');
+        setIsThinking(true);
+        setTimeout(() => {
+          setConversation(prev => [...prev, { role: 'assistant', text: fakeAssistantReply(trimmed) }]);
+          setIsThinking(false);
+        }, 500);
+      };
+
+      const handleKeyDown = (event) => {
+        if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+          event.preventDefault();
+          handleSend();
+        }
+      };
+
+      return (
+        <div className={`fixed inset-0 z-50 transition ${isOpen ? 'pointer-events-auto' : 'pointer-events-none'}`}>
+          <div
+            className={`absolute inset-0 bg-black/30 transition-opacity ${isOpen ? 'opacity-100' : 'opacity-0'}`}
+            onClick={onClose}
+          ></div>
+          <div
+            className={`absolute inset-y-0 right-0 w-full sm:w-[480px] max-w-full bg-white shadow-2xl border-l border-neutral-200 transform transition-transform ${
+              isOpen ? 'translate-x-0' : 'translate-x-full'
+            }`}
+          >
+            <div className="flex items-center justify-between px-5 py-4 border-b border-neutral-100">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-neutral-400">Assistant</p>
+                <h3 className="text-lg font-semibold text-neutral-900">Quick Ask AI</h3>
+              </div>
+              <button onClick={onClose} className="p-2 text-neutral-500 hover:text-neutral-900 rounded-lg hover:bg-neutral-100">
+                <span className="sr-only">Close</span>
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+
+            <div className="h-full flex flex-col">
+              <div className="px-5 py-4 border-b border-neutral-100">
+                <p className="text-sm text-neutral-600">
+                  Use the prompt library to preload a request or type your own question. Responses are generated locally for now, so feel free to copy + tweak.
+                </p>
+              </div>
+              <div className="flex-1 overflow-y-auto px-5 py-4 space-y-4">
+                <div>
+                  <div className="flex items-center justify-between mb-3">
+                    <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Prompt library</span>
+                    <span className="text-xs text-neutral-400">Click to load into the editor</span>
+                  </div>
+                  <div className="grid grid-cols-1 gap-3">
+                    {preparedPrompts.map(prompt => (
+                      <button
+                        key={prompt.id}
+                        onClick={() => handleTemplateSelect(prompt.filled)}
+                        className="text-left p-3 rounded-xl border border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50"
+                      >
+                        <p className="text-sm font-semibold text-neutral-900">{prompt.title}</p>
+                        <p className="text-xs text-neutral-500">{prompt.description}</p>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="border border-neutral-200 rounded-2xl p-4 bg-neutral-50">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-2">Conversation</p>
+                  <div className="space-y-3 max-h-60 overflow-y-auto pr-1">
+                    {conversation.length === 0 && (
+                      <p className="text-sm text-neutral-500">Ask anything about today’s coverage, content ideas, or partner mentions.</p>
+                    )}
+                    {conversation.map((entry, idx) => (
+                      <div key={idx} className={`p-3 rounded-xl ${entry.role === 'user' ? 'bg-white border border-neutral-200' : 'bg-neutral-900 text-white'}`}>
+                        <p className="text-xs uppercase tracking-wider mb-1 opacity-60">{entry.role === 'user' ? 'You' : 'AI'}</p>
+                        <p className="text-sm whitespace-pre-line">{entry.text}</p>
+                      </div>
+                    ))}
+                    {isThinking && (
+                      <div className="p-3 rounded-xl bg-neutral-900 text-white">
+                        <p className="text-xs uppercase tracking-wider mb-1 opacity-60">AI</p>
+                        <p className="text-sm">Thinking...</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-5 border-t border-neutral-100 space-y-3">
+                <label className="text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                  Your prompt
+                </label>
+                <textarea
+                  value={promptInput}
+                  onChange={(e) => setPromptInput(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Describe what you need help drafting..."
+                  className="w-full h-24 border border-neutral-200 rounded-xl p-3 text-sm focus:outline-none focus:ring-2 focus:ring-neutral-900"
+                ></textarea>
+                <div className="flex items-center justify-between text-xs text-neutral-400">
+                  <span>Press ⌘/Ctrl + Enter to send</span>
+                  <button
+                    onClick={handleSend}
+                    disabled={!promptInput.trim() || isThinking}
+                    className={`px-4 py-2 rounded-lg text-sm font-semibold ${
+                      promptInput.trim() && !isThinking
+                        ? 'bg-neutral-900 text-white hover:bg-neutral-800'
+                        : 'bg-neutral-200 text-neutral-500 cursor-not-allowed'
+                    }`}
+                  >
+                    Send
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      );
+    };
+
     // Footer
     const Footer = () => (
       <footer className="bg-white border-t border-neutral-200 mt-12">
@@ -1184,6 +1418,7 @@
       });
       
       const [viewMode, setViewMode] = useState('day');
+      const [isAssistantOpen, setAssistantOpen] = useState(false);
       const [reportContent, setReportContent] = useState(null);
       const [reportError, setReportError] = useState(null);
 
@@ -1225,7 +1460,13 @@
 
       return (
         <div className="min-h-screen bg-neutral-50">
-          <Header currentDate={currentDate} setCurrentDate={setCurrentDate} viewMode={viewMode} setViewMode={setViewMode} />
+          <Header
+            currentDate={currentDate}
+            setCurrentDate={setCurrentDate}
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            onOpenAssistant={() => setAssistantOpen(true)}
+          />
           
           <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
             <DatePills currentDate={currentDate} setCurrentDate={setCurrentDate} />
@@ -1250,9 +1491,15 @@
             
             {viewMode === 'groups' && <GroupsView />}
             {viewMode === 'bracket' && <BracketView />}
+            {viewMode === 'chat' && <ChatWithAI />}
           </main>
           
           <Footer />
+          <AssistantDrawer
+            isOpen={isAssistantOpen}
+            onClose={() => setAssistantOpen(false)}
+            currentDate={currentDate}
+          />
         </div>
       );
     };
